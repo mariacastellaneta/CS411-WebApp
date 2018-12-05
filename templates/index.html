@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}
+    Homepage - {{ block.super }}
+{% endblock title %}
+
+{% block body %}
+<div class="container-fluid">
+ <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
+        <h1 class="my-4 text-center text-lg-left">Your Top Artists</h1>
+        <div id="carouselExample" class="carousel slide" data-ride="carousel" data-interval="9000">
+            <div class="carousel-inner row w-100 mx-auto" role="listbox">
+                <div class="carousel-item col-md-3  active">
+                   <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 1" class="thumb">
+                          <img class="img-fluid mx-auto d-block" src= {% if artist1img %}{{artist1img}}{% endif %} alt="slide 1">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                <div class="carousel-item col-md-3 ">
+                   <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 3" class="thumb">
+                         <img class="img-fluid mx-auto d-block" src={% if artist2img %}{{artist2img}}{% endif %} alt="slide 2">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                <div class="carousel-item col-md-3 ">
+                   <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 4" class="thumb">
+                         <img class="img-fluid mx-auto d-block" src={% if artist3img %}{{artist3img}}{% endif %} alt="slide 3">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                <div class="carousel-item col-md-3 ">
+                    <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 5" class="thumb">
+                         <img class="img-fluid mx-auto d-block" src={% if artist4img %}{{artist4img}}{% endif %} alt="slide 4">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                <div class="carousel-item col-md-3 ">
+                  <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 6" class="thumb">
+                          <img class="img-fluid mx-auto d-block" src={% if artist5img %}{{artist5img}}{% endif %} alt="slide 5">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                <div class="carousel-item col-md-3 ">
+                   <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 7" class="thumb">
+                          <img class="img-fluid mx-auto d-block" src={% if artist6img %}{{artist6img}}{% endif %} alt="slide 6">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                <div class="carousel-item col-md-3 ">
+                   <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 8" class="thumb">
+                          <img class="img-fluid mx-auto d-block" src={% if artist7img %}{{artist7img}}{% endif %} alt="slide 7">
+                        </a>
+                      </div>
+                    </div>
+                </div>
+                 <div class="carousel-item col-md-3  ">
+                    <div class="panel panel-default">
+                      <div class="panel-thumbnail">
+                        <a href="/showinfo/" title="image 2" class="thumb">
+                         <img class="img-fluid mx-auto d-block" src={% if artist8img %}{{artist8img}}{% endif %} alt="slide 8">
+                        </a>
+                      </div>
+                      
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExample" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next text-faded" href="#carouselExample" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+  </div>  
+
+  <div class="container-fluid">
+        <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
+        <h1 class="my-4 text-center text-lg-left">Local Show Recommendations</h1>
+  
+        <div class="row text-center text-lg-left">
+  
+
+
+          {% autoescape off %}
+            {{ divs }}
+          {% endautoescape %}
+        </div>
+      </div>
+  </div>
+
+
+
+{% endblock body %}
