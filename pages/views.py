@@ -42,7 +42,7 @@ def login(request):
         dbUser =CustomUser.objects.filter( spotifyid__contains=user['id'] ).first() 
 
         #LOTS OF COMMENTED STUFF sorry it represents how i made a ruf attempt at searching every similar artist
-        artistNames,artistUrls,artistIds = services.getArtists(access_token) #gets top 8 artists in spotify
+        artistNames,artistUrls,artistExtLinks = services.getArtists(access_token) #gets top 8 artists in spotify
 
         # MyTopArtists, MyTopArtistsId = services.getArtists(access_token)
         # print(MyTopArtists)
@@ -78,7 +78,8 @@ def login(request):
             newUser.save()
             
 
-            # artists = services.getArtists(topartists)
+            #RIGHT NOW HARD CODED TO ASSUME 8 TOP ARTISTS - probably need to make this more general, in the event the user doesn't
+            #have 8 top artists? need to investigate what spotify api returns in that event.
             payload = {
                 
                 'artist1img':artistUrls[0],
@@ -90,7 +91,14 @@ def login(request):
                 'artist7img':artistUrls[6],
                 'artist8img':artistUrls[7],
 
-                
+                'topURL1':artistExtLinks[0],
+                'topURL2':artistExtLinks[1],
+                'topURL3':artistExtLinks[2],
+                'topURL4':artistExtLinks[3],
+                'topURL5':artistExtLinks[4],
+                'topURL6':artistExtLinks[5],
+                'topURL7':artistExtLinks[6],
+                'topURL8':artistExtLinks[7],
 
                 'user':newUser.username,
                 'location':newUser.location,
@@ -110,6 +118,14 @@ def login(request):
                 'artist6img':artistUrls[5],
                 'artist7img':artistUrls[6],
                 'artist8img':artistUrls[7],
+                'topURL1':artistExtLinks[0],
+                'topURL2':artistExtLinks[1],
+                'topURL3':artistExtLinks[2],
+                'topURL4':artistExtLinks[3],
+                'topURL5':artistExtLinks[4],
+                'topURL6':artistExtLinks[5],
+                'topURL7':artistExtLinks[6],
+                'topURL8':artistExtLinks[7],
                 'user':dbUser.username,
                 'location':dbUser.location,
                 'divs':divs

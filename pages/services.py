@@ -67,7 +67,7 @@ def getArtists(bearer):
     r = requests.get(url, headers=headers,params={'limit':50})
     jsonn=r.json()
     artists=jsonn['items']
-
+    artistLinks=[]
     # artistNames = [a['name'] for a in artists]
     artistNames = ['+'.join(a['name'].split()) for a in artists]
     artistImages= []
@@ -77,10 +77,18 @@ def getArtists(bearer):
         except:
             img = ''
         artistImages.append(img)
-    artistIds = [a['id'] for a in artists]
+    
+    for i in range(len(artistNames)):
+        skURL='https://api.songkick.com/api/3.0/search/artists.json?apikey=zTrWUEWdDa8iaH8v&query='+artistNames[i]
+        rSK = requests.get(skURL)
+        try:
+            artistLinks.append(rSK.json()['resultsPage']['results']['artist'][0]['uri'])
+        except:
+            artistLinks.append(artists[i]['external_urls']['spotify'])
+    # artistIds = [a['id'] for a in artists]
 
     
-    return artistNames[0:8],artistImages[0:8],artistIds
+    return artistNames[0:8],artistImages[0:8],artistLinks
     # return artistNames,artistIds
 
 def similarArtists(artistIds,bearer):
