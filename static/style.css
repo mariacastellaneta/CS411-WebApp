@@ -14,6 +14,18 @@ ul.errorlist > li {
     border-radius: 0;
 }
 
+#contactform .btn:hover {
+    background: rgba(9,8,77,0.7);
+  }
+  
+  .tr-map{
+    left: 0;
+    right: 0;
+    height: 100%;
+    overflow-x: hidden !important;
+    position: absolute !important;
+    margin-top: -1em;
+}
 
 .autocomplete {
     width: 100%;

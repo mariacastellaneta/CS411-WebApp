@@ -12,7 +12,7 @@
                 <div class="carousel-item col-md-3  active">
                    <div class="panel panel-default">
                       <div class="panel-thumbnail">
-                        <a href="/showinfo/" title="image 1" class="thumb">
+                        <a href= {% if artist1name %}{{artist1name}}{% endif %} title="image 1" class="thumb">
                           <img class="img-fluid mx-auto d-block" src= {% if artist1img %}{{artist1img}}{% endif %} alt="slide 1">
                         </a>
                       </div>
@@ -97,7 +97,7 @@
 
   <div class="container-fluid">
         <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
-        <h1 class="my-4 text-center text-lg-left">Local Show Recommendations</h1>
+        <h1 class="my-4 text-center text-lg-left">Shows Based on Your Library</h1>
   
         <div class="row text-center text-lg-left">
   

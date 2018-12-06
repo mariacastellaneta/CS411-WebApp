@@ -8,7 +8,7 @@ urlpatterns = [
     # path('', views.HomePageView.as_view(), name='home'),
     url(r'^login/$', views.login, name='login'),
     url(r'^success/$',views.success,name='success'),
-    url(r'^showinfo/$',views.showinfo,name='showinfo')
+    path('showinfo/<str:artist>/',views.showinfo,name='showinfo')
 
 
 ]

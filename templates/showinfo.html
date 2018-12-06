@@ -5,33 +5,87 @@
 
 {% block body %}
 
+
+
+
+<!-- HTML page to render the show info page. -->
+<!-- anytime you see {{variable}} it replaces the text with the value of the variable. the variable comes from view.py, with render(request,'showinfo.html',payload) -->
+
 <div class="row" style="margin-top: 100px; margin-left: 20px;">
-        <div class="col-md-3">
+        <div class="col-md-5">
             
-            <div class="jumbotron">
-            
+            <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
+                <img src = {{imgUrl}} width="100%" height="320">
             </div>
         
-            <div class="jumbotron">
-            
+            <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">{{eventname}}</li>
+                    <li class="list-group-item">{{datetime}}</li>
+                    <li class="list-group-item">{{venueName}}</li>
+                    <li class="list-group-item">{{venueAddr}}</li>
+                    <li class="list-group-item">{% if info %}{{info}}{% endif %}</li>
+
+                </ul>
             </div>
     
         </div>
         
         
         
-        <div class="col-md-9">
+        <div class="col-md-7">
             
             
-            <div class="jumbotron">
-            
+            <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">TicketMaster
+                        <a href={{url}} class="btn btn-primary btn-sm float-right active" role="button" aria-pressed="true">Get Tickets</a>
+                    </li>
+                    <li class="list-group-item">Stubhub
+                        <a href="#" class="btn btn-primary btn-sm float-right active" role="button" aria-pressed="true">Get Tickets</a>
+
+                    </li>
+                    
+                </ul>
             </div>
                 
-            <div class="jumbotron">
-            
+            <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
+                <div id="map" ></div>
             </div>
-        
+
+            <script>
+                var map;
+                
+                function initMap() { //script to render map within bootstrap
+                  var lat = parseFloat({{venueLat}}) //read in latitude from event rendered
+                  var long = parseFloat({{venueLng}}) //read in longitude from event rendered
+                  var coords ={lat: lat, lng: long};
+                  var contentString = '<div id="content" style="text-align:center;">'+
+                    '<div id="siteNotice">'+
+                    '</div>'+
+                    '<p><b>{{venueName}}</b></p>'+
+                    '<p>{{venueAddr}}</p>'+
+
+                    '</div>';
+
+                  map = new google.maps.Map(document.getElementById('map'), {
+                    center: coords,
+                    zoom: 16
+                  });
+                  var marker = new google.maps.Marker({position: coords, map: map});
+                  var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                  });
+                    marker.addListener('click', function() {
+                        infowindow.open(map, marker);
+                    });
+                }
+
+              </script>
+              <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmPxT5na9uiKISMLP-O6WyCm2SCOFuVDE&callback=initMap"
+              ></script>
         </div>
 </div>
+
 
 {% endblock body %}
