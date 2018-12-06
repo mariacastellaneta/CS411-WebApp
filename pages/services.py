@@ -139,7 +139,7 @@ def getTicketMaster():
     foundArtists=[]
 
     #ticketmaster endpoint to find 25 shows in area (hard coded for boston right now) based on genreID (hard coded for dance/electronic right now)
-    url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=25&genreId=KnvZfZ7vAv1&segmentId=KZFzniwnSyZfZ7v7nJ&city=boston&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj'
+    url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=21&genreId=KnvZfZ7vAvF&segmentId=KZFzniwnSyZfZ7v7nJ&city=boston&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj'
     r = requests.get(url).json()
     for i in range(len(r['_embedded']['events'])): #iterate over all the 25 returned shows and parse thru the json accordingly. 
         payload = {}
