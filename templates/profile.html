@@ -9,7 +9,7 @@
   <div class="jumbotron shadow p-3 mb-5 bg-light rounded">
     <ul class="list-group list-group-flush">
         <li class="list-group-item">Username: {{user}}</li>
-        <li class="list-group-item">Default Location: {{location}}</li>
+        <li class="list-group-item">Default Location: {{request.user.location}}</li>
         <li class="list-group-item">
         <a href={{spotifyid}}> Spotify Account </a>
       </ul> 

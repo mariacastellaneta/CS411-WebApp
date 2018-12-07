@@ -63,7 +63,7 @@ def home_view(request):
     if 'HomePayload' not in request.session:
         access_token = request.session['access_token']
         artistNames,artistUrls,artistExtLinks, genres = services.getArtists(access_token) #gets top 8 artists in spotify
-        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,request.session['HomePayload']['location']) #gets the ticketmaster suggested artists
+        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,request.user.location) #gets the ticketmaster suggested artists
         divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
         request.session['Concerts']=MySimilarArtistEvents
         payload = {   
