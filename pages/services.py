@@ -107,7 +107,8 @@ def similarArtists(artistIds,bearer):
 
 def renderRecs(recArtistsImg,recArtistsNames): 
     #recArtistsImg is the link to the image source, recArtistsNames allows for the routing to the correct url
-    allDiv = ""
+    allDiv = '<div class="row text-center text-lg-left">'
+
     for i in range(len(recArtistsImg)):
         
         allDiv += """
@@ -117,7 +118,9 @@ def renderRecs(recArtistsImg,recArtistsNames):
             </a>
         </div>
         """%(recArtistsNames[i],recArtistsImg[i])
-
+    allDiv +="""
+    </div>
+    """
     return allDiv #formats the HTML to fit into the template
 
 
@@ -139,6 +142,8 @@ def getTicketMaster(genres,location):
     #ticketmaster endpoint to find 25 shows in area (hard coded for boston right now) based on genreID (hard coded for dance/electronic right now)
     url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=28&genreId='+genreIDstr+'&segmentId=KZFzniwnSyZfZ7v7nJ&city=' +location+'&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj&radius=100'
     r = requests.get(url).json()
+    if (r['page']['totalElements']==0):
+        return None
     print(r)
     for i in range(len(r['_embedded']['events'])): #iterate over all the 25 returned shows and parse thru the json accordingly. 
         payload = {}
@@ -199,3 +204,25 @@ def getTicketMaster(genres,location):
         results[curArtist] = payload
 
     return results,urls,foundArtists #urls and found artists are arrays holding links and names, which allows for html rendering and URL routing
+
+
+def locationdropdown(location):
+    locStr = """
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Current Location Set To:"""
+    locStr += location
+    locStr += """ </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <form class="px-4 py-3"  method="post"> {{% csrf_token %}}
+                    <div class="form-group">
+                        <input id="autocomplete" name = "autocomplete" placeholder="Enter new location" type="text" />
+                        <input type="submit" value="Search" class="postfix button"/>
+
+                    </div>    
+                </form>
+            </div>
+        </li>
+    """
+
+    return locStr.format(location)

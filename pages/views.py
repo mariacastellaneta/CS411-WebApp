@@ -24,16 +24,29 @@ client_credentials_manager = SpotifyClientCredentials(client_id=SPOTIPY_CLIENT_I
 
 def home_view(request):
     if not request.user.is_authenticated:
+        request.session['HomePayload']['location'] = request.user.location
         return redirect('/login/')
 
     if request.method=='POST':
-        location = request.POST.get('autocomplete')
-        newLoc='+'.join(location.split(',')[-3].split())
+        try:
+            location = request.POST.get('autocomplete')
+            newLoc='+'.join(location.split(',')[-3].split())
+
+        except:
+            return(request,'index.html',request.session['HomePayload'])
+
         access_token = request.session['access_token']
         artistNames,artistUrls,artistExtLinks, genres = services.getArtists(access_token) #gets top 8 artists in spotify
-        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,newLoc) #gets the ticketmaster suggested artists
-        divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
-        request.session['Concerts']=MySimilarArtistEvents
+        try:
+            MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,newLoc) #gets the ticketmaster suggested artists
+            divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
+            request.session['Concerts']=MySimilarArtistEvents
+        except: 
+            divs = '<h2 class="my-4 text-center text-lg-left" style=padding-right: 20px;">No shows found given your location/genre preferences.</h1>'
+        
+        # request.session['Concerts']=MySimilarArtistEvents
+        locStr = services.locationdropdown(location.split(',')[-3].strip())
+
 
         payload = {   
             'artist1img':artistUrls[0],
@@ -55,7 +68,8 @@ def home_view(request):
             'topURL8':artistExtLinks[7],
             'user':request.user.username,
             'location':location.split(',')[-3].strip(),
-            'divs':divs
+            'divs':divs,
+            'locationdropdown':locStr
         }
         del request.session['HomePayload']
         request.session['HomePayload'] = payload
@@ -63,9 +77,15 @@ def home_view(request):
     if 'HomePayload' not in request.session:
         access_token = request.session['access_token']
         artistNames,artistUrls,artistExtLinks, genres = services.getArtists(access_token) #gets top 8 artists in spotify
-        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,request.user.location) #gets the ticketmaster suggested artists
-        divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
-        request.session['Concerts']=MySimilarArtistEvents
+        try:
+            MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,request.user.location) #gets the ticketmaster suggested artists
+            divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
+            request.session['Concerts']=MySimilarArtistEvents
+        except:
+            divs = '<h2 class="my-4 text-center text-lg-left">No shows found given your location/genre preferences.</h1>'
+
+        locStr = services.locationdropdown(request.user.location)
+        # request.session['Concerts']=MySimilarArtistEvents
         payload = {   
             'artist1img':artistUrls[0],
             'artist2img':artistUrls[1],
@@ -86,6 +106,7 @@ def home_view(request):
             'topURL8':artistExtLinks[7],
             'user':request.user.username,
             'location':request.user.location,
+            'locationdropdown':locStr,
             'divs':divs
         }
         request.session['HomePayload'] = payload
@@ -130,7 +151,16 @@ def login_view(request):
 
 
 
+def set_location_view(request):
+    if (request.method == 'POST'):
+        # so they pressed submit on their location
+        location = request.POST.get('autocomplete')
+        user = CustomUser.objects.get(username=request.user.username,spotifyid=request.user.spotifyid)
+        user.location = location.split(',')[-3].strip()
+        user.save()
+        return redirect('/home/')
 
+    return render(request,'setlocation.html')
 
 
 # def login_view(request):

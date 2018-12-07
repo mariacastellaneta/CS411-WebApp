@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^profile/$',views.profile,name='profile'),
     url(r'^logout/$',views.logout_view,name='logout'),
     url(r'^home/$',views.home_view,name='home'),
-    url(r'^$',views.redirectit,name='redirect')
-
+    url(r'^$',views.redirectit,name='redirect'),
+    url(r'^newuser/$',views.set_location_view,name='setlocation')
 
 ]
