@@ -11,5 +11,8 @@ urlpatterns = [
     path('showinfo/<str:artist>/',views.showinfo,name='showinfo'),
     url(r'^profile/$',views.profile,name='profile'),
     url(r'^logout/$',views.logout_view,name='logout'),
-    url(r'^home/$',views.home_view,name='home')
+    url(r'^home/$',views.home_view,name='home'),
+    url(r'^$',views.redirectit,name='redirect')
+
+
 ]

@@ -121,7 +121,7 @@ def renderRecs(recArtistsImg,recArtistsNames):
     return allDiv #formats the HTML to fit into the template
 
 
-def getTicketMaster(genres):
+def getTicketMaster(genres,location):
     #hard coded for now
     results = {}
     urls = []
@@ -135,8 +135,9 @@ def getTicketMaster(genres):
 
     genreIDstr = genreIDstr[0:len(genreIDstr)-1]
     #ticketmaster endpoint to find 25 shows in area (hard coded for boston right now) based on genreID (hard coded for dance/electronic right now)
-    url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=100&genreId='+genreIDstr+'&segmentId=KZFzniwnSyZfZ7v7nJ&city=boston&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj'
+    url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=100&genreId='+genreIDstr+'&segmentId=KZFzniwnSyZfZ7v7nJ&city=' +location+'&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj'
     r = requests.get(url).json()
+    print(r)
     for i in range(len(r['_embedded']['events'])): #iterate over all the 25 returned shows and parse thru the json accordingly. 
         payload = {}
 
@@ -147,24 +148,44 @@ def getTicketMaster(genres):
             continue
 
         foundArtists.append( ('+'.join(payload['eventname'].split(' '))).replace('/',''))
+        try:
+            payload['url'] =r['_embedded']['events'][i]['url']#r['_embedded']['events'][0]['url']
+        except:
+            pass
+        try:
+            payload['venueAddr'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['address']['line1']
+        except:
+            pass
+        try:
+            payload['venueName'] =  r['_embedded']['events'][i]['_embedded']['venues'][0]['name']
+        except:
+            pass
+        try:
+            payload['venueLat'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['location']['latitude']
+        except:
+            pass
+        try:
+            payload['venueLng'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['location']['longitude']
+        except:
+            pass
+        try:
+            iMax = 0 
+            finalI = -1
+            for j in range(len(r['_embedded']['events'][i]['images'])):
+                nMax = r['_embedded']['events'][i]['images'][j]['height']*r['_embedded']['events'][i]['images'][j]['width']
+                if nMax > iMax:
+                    iMax = nMax
+                    finalI = j
+            payload['imgUrl'] = r['_embedded']['events'][i]['images'][finalI]['url']
+            urls.append(payload['imgUrl'])
+        except:
+            urls.append('')
         
-        payload['url'] =r['_embedded']['events'][i]['url']#r['_embedded']['events'][0]['url']
-        payload['venueAddr'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['address']['line1']
-        payload['venueName'] =  r['_embedded']['events'][i]['_embedded']['venues'][0]['name']
-        payload['venueLat'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['location']['latitude']
-        payload['venueLng'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['location']['longitude']
-        
-        iMax = 0 
-        finalI = -1
-        for j in range(len(r['_embedded']['events'][i]['images'])):
-            nMax = r['_embedded']['events'][i]['images'][j]['height']*r['_embedded']['events'][i]['images'][j]['width']
-            if nMax > iMax:
-                iMax = nMax
-                finalI = j
-        payload['imgUrl'] = r['_embedded']['events'][i]['images'][finalI]['url']
-        urls.append(payload['imgUrl'])
-        date=datetime.datetime.strptime(r['_embedded']['events'][i]['dates']['start']['localDate']+'T'+r['_embedded']['events'][0]['dates']['start']['localTime'], '%Y-%m-%dT%H:%M:%S')
-        payload['datetime'] =datetime.datetime.strftime(date, '%m/%d/%Y at %H:%M')
+        try:
+            date=datetime.datetime.strptime(r['_embedded']['events'][i]['dates']['start']['localDate']+'T'+r['_embedded']['events'][0]['dates']['start']['localTime'], '%Y-%m-%dT%H:%M:%S')
+            payload['datetime'] =datetime.datetime.strftime(date, '%m/%d/%Y at %H:%M')
+        except:
+            pass
         try:
             payload['info']=r['_embedded']['events'][i]['info']
         except:

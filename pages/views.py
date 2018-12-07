@@ -9,9 +9,7 @@ import requests
 from spotipy.oauth2 import SpotifyClientCredentials
 import json
 from django.core import serializers
-
 from django.shortcuts import redirect
-# from users.backends import SpotifyAuthBackEnd
 from django.contrib.auth import login, logout , authenticate, get_user
 
 
@@ -28,10 +26,44 @@ def home_view(request):
     if not request.user.is_authenticated:
         return redirect('/login/')
 
+    if request.method=='POST':
+        location = request.POST.get('autocomplete')
+        newLoc='+'.join(location.split(',')[-3].split())
+        access_token = request.session['access_token']
+        artistNames,artistUrls,artistExtLinks, genres = services.getArtists(access_token) #gets top 8 artists in spotify
+        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,newLoc) #gets the ticketmaster suggested artists
+        divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
+        request.session['Concerts']=MySimilarArtistEvents
+
+        payload = {   
+            'artist1img':artistUrls[0],
+            'artist2img':artistUrls[1],
+            'artist3img':artistUrls[2],
+            'artist4img':artistUrls[3],
+            'artist5img':artistUrls[4],
+            'artist6img':artistUrls[5],
+            'artist7img':artistUrls[6],
+            'artist8img':artistUrls[7],
+
+            'topURL1':artistExtLinks[0],
+            'topURL2':artistExtLinks[1],
+            'topURL3':artistExtLinks[2],
+            'topURL4':artistExtLinks[3],
+            'topURL5':artistExtLinks[4],
+            'topURL6':artistExtLinks[5],
+            'topURL7':artistExtLinks[6],
+            'topURL8':artistExtLinks[7],
+            'user':request.user.username,
+            'location':location.split(',')[-3].strip(),
+            'divs':divs
+        }
+        del request.session['HomePayload']
+        request.session['HomePayload'] = payload
+
     if 'HomePayload' not in request.session:
         access_token = request.session['access_token']
         artistNames,artistUrls,artistExtLinks, genres = services.getArtists(access_token) #gets top 8 artists in spotify
-        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres) #gets the ticketmaster suggested artists
+        MySimilarArtistEvents,SimArtistsImgs,SimFoundNames = services.getTicketMaster(genres,request.session['HomePayload']['location']) #gets the ticketmaster suggested artists
         divs = services.renderRecs(SimArtistsImgs,SimFoundNames)
         request.session['Concerts']=MySimilarArtistEvents
         payload = {   
@@ -59,6 +91,7 @@ def home_view(request):
         request.session['HomePayload'] = payload
     else:
         payload = request.session['HomePayload']
+
     return render(request,'index.html',payload)
 
 def login_view(request):
@@ -257,15 +290,13 @@ def showinfo(request,artist):
     #then in here artist=Drake, and it will look in my session cache to find the payload for drake, and render the showinfo.html accordingly.
     # curUser = json.loads(request.session['CurrentUser'])
     payload['user']=request.user.username
-    payload['location']=request.user.location
+    payload['location']=request.session['HomePayload']['location']
     return render(request,'showinfo.html',payload)
 
 def profile(request):
 
     curUser = request.user
-    payload={'users':curUser.username,'user':curUser.username,'location':curUser.location,'spotifyid':'https://open.spotify.com/user/'+str(curUser.spotifyid)}
-
-
+    payload={'users':curUser.username,'user':curUser.username,'location':request.session['HomePayload']['location'],'spotifyid':'https://open.spotify.com/user/'+str(curUser.spotifyid)}
     return render(request,'profile.html',payload)
 
 def logout_view(request):
@@ -274,5 +305,7 @@ def logout_view(request):
         del request.session[key]
     logout(request)
     response = redirect('/login/')
-
     return response
+
+def redirectit(request):
+    return redirect('/login/')
