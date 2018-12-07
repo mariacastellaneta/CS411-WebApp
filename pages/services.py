@@ -9,6 +9,7 @@ from spotipy import oauth2
 from constants import *
 import datetime 
 import time
+from constants import GenreHash
 def getEventBrite(artist,location):
     
     show = Show.objects.filter(artist__contains=artist.lower(), city__contains=location.lower()).first() 
@@ -70,6 +71,7 @@ def getArtists(bearer):
     artistLinks=[]
     # artistNames = [a['name'] for a in artists]
     artistNames = ['+'.join(a['name'].split()) for a in artists]
+    genres = sum([a['genres'][0:2] for a in artists],[])
     artistImages= []
     for a in artists:
         try:
@@ -79,17 +81,11 @@ def getArtists(bearer):
         artistImages.append(img)
     
     for i in range(len(artistNames)):
-        skURL='https://api.songkick.com/api/3.0/search/artists.json?apikey=zTrWUEWdDa8iaH8v&query='+artistNames[i]
-        rSK = requests.get(skURL)
-        try:
-            artistLinks.append(rSK.json()['resultsPage']['results']['artist'][0]['uri'])
-        except:
-            artistLinks.append(artists[i]['external_urls']['spotify'])
-    # artistIds = [a['id'] for a in artists]
-
-    
-    return artistNames[0:8],artistImages[0:8],artistLinks
-    # return artistNames,artistIds
+        # skURL='https://api.songkick.com/api/3.0/search/artists.json?apikey=zTrWUEWdDa8iaH8v&query='+artistNames[i]
+        # rSK = requests.get(skURL)
+        
+        artistLinks.append(artists[i]['external_urls']['spotify'])    
+    return artistNames[0:8],artistImages[0:8],artistLinks,genres
 
 def similarArtists(artistIds,bearer):
     #not used now
@@ -103,23 +99,9 @@ def similarArtists(artistIds,bearer):
         
         simArtists = r2.json()['artists']
         names = ['+'.join(a['name'].split()) for a in simArtists]
-        # for i in range(3):
-        #     try:
-        #         img = simArtists[i]['images'][0]['url']
-        #     except:
-        #         img = ''
-        #     similarArtistImg.append(img)
-        # try:
-            # names = names[0:3]
-
-        similarArtists+=names
-        # except:
-        #     continue
         
-
-    # random.shuffle(similarArtistImg)
-    
-    # return similarArtistImg[0:12], similarArtists[0:12]
+        similarArtists+=names
+        
     return similarArtists[0:50]
 
 
@@ -139,36 +121,37 @@ def renderRecs(recArtistsImg,recArtistsNames):
     return allDiv #formats the HTML to fit into the template
 
 
-
-def getTicketMaster():
+def getTicketMaster(genres):
     #hard coded for now
     results = {}
     urls = []
     foundArtists=[]
+    genreIDstr =''
+    
+    for genre in genres:
+        if genre in GenreHash:
+            genreIDstr+=(GenreHash[genre]+',')
+        
 
+    genreIDstr = genreIDstr[0:len(genreIDstr)-1]
     #ticketmaster endpoint to find 25 shows in area (hard coded for boston right now) based on genreID (hard coded for dance/electronic right now)
-    url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=21&genreId=KnvZfZ7vAvF&segmentId=KZFzniwnSyZfZ7v7nJ&city=boston&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj'
+    url = 'https://app.ticketmaster.com/discovery/v2/events.json?size=100&genreId='+genreIDstr+'&segmentId=KZFzniwnSyZfZ7v7nJ&city=boston&apikey=O5RiEgAQZrTztqWOwSDjfvCB1jqwm1zj'
     r = requests.get(url).json()
     for i in range(len(r['_embedded']['events'])): #iterate over all the 25 returned shows and parse thru the json accordingly. 
         payload = {}
 
         payload['eventname'] = r['_embedded']['events'][i]['name']#r['_embedded']['events'][0]['name']
-        curArtist = '+'.join(payload['eventname'].split(' '))
+        curArtist = ('+'.join(payload['eventname'].split(' '))).replace('/','')
 
         if curArtist in results:
             continue
 
-        foundArtists.append('+'.join(payload['eventname'].split(' ')))
-
+        foundArtists.append( ('+'.join(payload['eventname'].split(' '))).replace('/',''))
         
         payload['url'] =r['_embedded']['events'][i]['url']#r['_embedded']['events'][0]['url']
-        
         payload['venueAddr'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['address']['line1']
-        
         payload['venueName'] =  r['_embedded']['events'][i]['_embedded']['venues'][0]['name']
-        
         payload['venueLat'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['location']['latitude']
-        
         payload['venueLng'] = r['_embedded']['events'][i]['_embedded']['venues'][0]['location']['longitude']
         
         iMax = 0 
@@ -179,13 +162,9 @@ def getTicketMaster():
                 iMax = nMax
                 finalI = j
         payload['imgUrl'] = r['_embedded']['events'][i]['images'][finalI]['url']
-        
         urls.append(payload['imgUrl'])
-        
         date=datetime.datetime.strptime(r['_embedded']['events'][i]['dates']['start']['localDate']+'T'+r['_embedded']['events'][0]['dates']['start']['localTime'], '%Y-%m-%dT%H:%M:%S')
         payload['datetime'] =datetime.datetime.strftime(date, '%m/%d/%Y at %H:%M')
-
-        
         try:
             payload['info']=r['_embedded']['events'][i]['info']
         except:

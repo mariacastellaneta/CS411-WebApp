@@ -45,6 +45,9 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'users.CustomUser' # new
 
+AUTHENTICATION_BACKENDS = (
+       'users.backends.SpotifyAuthBackEnd',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
